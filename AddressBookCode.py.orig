@@ -13,7 +13,6 @@ class Contact(object):
     3. Email id of the person
     4. Mobile Number of the person
     """
-
     def __init__(self):
         self.__name = None
         self.__address = None
@@ -52,7 +51,6 @@ class ManageCSV(object):
     Interacts with the .csv file containing all contacts.
     That is, loads Contacts into RAM from Secondary Storage.
     """
-
     def __init__(self, csv_name):
         self.__CSV = open(csv_name)
         self.csv_name = csv_name
@@ -93,11 +91,10 @@ class AddressBookWindow(object):
     Manages the Graphic User Interface.
     GUI is made using tkinter.
     """
-
     def __init__(self, root):
         self.root = root
         self.root.title('My Address Book')
-        self.root.attributes("-zoomed", True)  # Maximises the window.
+        self.root.attributes("-zoomed", True) # Maximises the window.
 
     def image(self):
         # set the image.
@@ -111,36 +108,34 @@ class AddressBookWindow(object):
         # Add buttons for adding, modifying and deleting contacts.
         frame = Frame(self.root)
         new_contact_btn = Button(frame, text="Create New Contact", fg="blue",
-                                 bg="yellow", width=20, height=2, font=('Comic Sans MS', 30),
+                                 bg="yellow",width=20,height=2,font=('Comic Sans MS',30),
                                  command=self.new_contact_window)
         new_contact_btn.pack(pady=10)
         modify_contact_btn = Button(frame, text="Modify Existing Contact",
-                                    fg="purple", bg="orange", width=20, font=('Comic Sans MS', 30),
+                                    fg="purple", bg="orange",width=20,font=('Comic Sans MS',30),
                                     command=self.modify_contact_window)
         modify_contact_btn.pack(pady=10)
         delete_contact_btn = Button(frame, text="Delete Contact", fg="white",
-                                    bg="red", width=20, font=('Comic Sans MS', 30),
-                                    command=self.delete_contact_window)
+                                    bg="red",width=20,font=('Comic Sans MS',30),
+                                    command= self.delete_contact_window)
         delete_contact_btn.pack(pady=10)
         frame.place(x=50, y=600)
 
     def heading_label(self):
         # Add heading.
-        label = Label(self.root, text='My Address Book',
-                      font=('Comic Sans MS', 30))
+        label = Label(self.root, text='My Address Book',font=('Comic Sans MS', 30))
         label.place(x=1000, y=50)
 
     def address_book_display(self):
         # Display the address book in GUI.
         frame = Frame(self.root)
         frame.place(x=600, y=130)
-        row = Text(frame, height=40, width=116,
-                   padx=20, pady=10, font=(None, 0))
+        row = Text(frame, height=40, width=116, padx=20, pady=10, font=(None, 0))
         row.pack()
         row.insert(END, 'Name' + '\t'*3 + 'Address' + '\t'*6 + 'Mobile Number'
                    + '\t'*2 + 'email\n\n')
 
-        contacts = ManageCSV('AddressBook.csv')  # Load contacts from CSV
+        contacts = ManageCSV('AddressBook.csv') # Load contacts from CSV
         contact_dict = contacts.read_values()
         contact_dict = dict(OrderedDict(sorted(contact_dict.items())))
 
@@ -148,7 +143,7 @@ class AddressBookWindow(object):
             row.insert(END, name + '\t'*3 + contact_dict[name][0] + '\t'*6 +
                        contact_dict[name][1] + '\t'*2 + contact_dict[name][2] + '\n')
 
-        row.config(state=DISABLED)  # No modification of the contacts in GUI.
+        row.config(state=DISABLED) # No modification of the contacts in GUI.
 
     def new_contact_window(self):
         # GUI for adding a new contact.
@@ -163,31 +158,27 @@ class AddressBookWindow(object):
 
         for value in values:
             label = Label(frame, text=value, font=(None, 20))
-            label.grid(row=values.index(value), column=0,
-                       sticky=E, pady=10, padx=15)
+            label.grid(row=values.index(value), column=0, sticky=E, pady=10, padx=15)
 
-            entries[values.index(value)] = Entry(
-                frame, font=(None, 20), width=30)
-            entries[values.index(value)].grid(
-                row=values.index(value), column=1)
+            entries[values.index(value)] = Entry(frame, font=(None, 20), width=30)
+            entries[values.index(value)].grid(row=values.index(value), column=1)
 
         def get_values():
             values = [entry.get() for entry in entries]
 
-            if values[0] == '':  # Display a warning if name is not entered
+            if values[0] == '': # Display a warning if name is not entered
                 warn_label = Label(frame, text="You cannot leave Name blank!",
                                    font=(None, 30), fg="red")
                 warn_label.grid(columnspan=2, pady=10, padx=15)
             else:
-                window.destroy()  # Going to previous window
+                window.destroy() # Going to previous window
                 new_contact = Contact()
                 new_contact.set_name(values[0])
                 new_contact.set_address(values[1])
                 new_contact.set_mobile_number(values[2])
                 new_contact.set_email(values[3])
                 csv = ManageCSV('AddressBook.csv')
-                # Adding new contact to csv file.
-                csv.write_values(contact=new_contact)
+                csv.write_values(contact=new_contact) # Adding new contact to csv file.
                 self.address_book_display()
                 # displaying the address book again with names sorted in ascending order.
 
@@ -208,13 +199,10 @@ class AddressBookWindow(object):
 
         for value in values:
             label = Label(frame, text=value, font=(None, 20))
-            label.grid(row=values.index(value), column=0,
-                       sticky=E, pady=10, padx=15)
+            label.grid(row=values.index(value), column=0, sticky=E, pady=10, padx=15)
 
-            entries[values.index(value)] = Entry(
-                frame, font=(None, 20), width=30)
-            entries[values.index(value)].grid(
-                row=values.index(value), column=1)
+            entries[values.index(value)] = Entry(frame, font=(None, 20), width=30)
+            entries[values.index(value)].grid(row=values.index(value), column=1)
 
         def get_values():
             values = [entry.get() for entry in entries]
@@ -222,26 +210,24 @@ class AddressBookWindow(object):
             dict_ = csv.read_values()
             flag = False
 
-            if values[0] == '':  # String must not be empty.
+            if values[0] == '': # String must not be empty.
                 text = "Fill in the name you want to modify."
                 flag = True
-            elif values[0] not in dict_:  # String must be present in the csv.
+            elif values[0] not in dict_: # String must be present in the csv.
                 text = "Contact of this name is not present."
                 flag = True
 
             if flag is True:
                 warn_label = Label(frame, text=text, font=(None, 20), fg="red")
-                warn_label.grid(row=6, column=0, columnspan=2, pady=10)
+                warn_label.grid(row=6,column=0,columnspan=2, pady=10)
             else:
-                window.destroy()  # Return to the main window
+                window.destroy() # Return to the main window
                 for x in range(1, 4):
                     if values[x] is not '':
-                        # Modify the values in dictionary.
-                        dict_[values[0]][x-1] = values[x]
+                        dict_[values[0]][x-1] = values[x] # Modify the values in dictionary.
                 csv = ManageCSV('AddressBook.csv')
-                csv.write_values(dict_=dict_)  # Modify value in csv file.
-                # Redesplay the contacts in sorted order.
-                self.address_book_display()
+                csv.write_values(dict_=dict_) # Modify value in csv file.
+                self.address_book_display() # Redesplay the contacts in sorted order.
 
         button = Button(frame, text="SUBMIT", font=('Comic Sans MS', 30),
                         width=10, command=get_values)
@@ -272,17 +258,16 @@ class AddressBookWindow(object):
             dict_ = csv.read_values()
 
             try:
-                # Deleting the contact details of the specified name.
-                dict_.pop(name)
+                dict_.pop(name) # Deleting the contact details of the specified name.
             except KeyError:
                 label = Label(frame, text="Contact not present in Address Book",
                               font=(None, 30), fg="red")
                 label.grid(columnspan=2, pady=10, padx=15)
                 # Display a warning if contact name not present in csv.
             else:
-                window.destroy()  # Return to previous window.
-                csv.write_values(dict_=dict_)  # Updating csv.
-                self.address_book_display()  # Redesplaying contacts.
+                window.destroy() # Return to previous window.
+                csv.write_values(dict_=dict_) # Updating csv.
+                self.address_book_display() # Redesplaying contacts.
 
         button = Button(frame, text="DELETE", font=('Comic Sans MS', 30),
                         width=10, command=get_value)
