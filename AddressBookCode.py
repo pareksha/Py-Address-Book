@@ -56,28 +56,33 @@ class ManageCSV(object):
         self.csv_name = csv_name
 
     def __close_csv(self):
+        # Close csv.
         self.__CSV.close()
 
-    # Load values to a python dictionary from the .csv file.
     def read_values(self):
+        # Load values to a python dictionary from the .csv file.
         reader = csv.DictReader(self.__CSV)
         dict_ = {}
         for row in reader:
-            dict_[row['Name']] = [row['Address'], row['Mobile Number'], row['email']]
+            dict_[row['Name']] = [row['Address'], row['Mobile Number'],
+                                  row['email']]
         self.__close_csv()
         return dict_
 
     def write_values(self, contact=None, dict_=None):
+        # Write values from a python dictionary to csvfile
         if contact is not None:
             dict_ = self.read_values()
-            dict_[contact.get_name()] = [contact.get_address(), contact.get_mobile_number(), contact.get_email()]
+            dict_[contact.get_name()] = [contact.get_address(),
+                                         contact.get_mobile_number(), contact.get_email()]
         dict_ = dict(OrderedDict(sorted(dict_.items())))
         self.__CSV = open(self.csv_name, 'w')
         fieldnames = ['Name', 'Address', 'Mobile Number', 'email']
         writer = csv.DictWriter(self.__CSV, fieldnames=fieldnames)
         writer.writeheader()
         for name in dict_:
-            writer.writerow({'Name': name, 'Address': dict_[name][0], 'Mobile Number': dict_[name][1], 'email': dict_[name][2]})
+            writer.writerow({'Name': name, 'Address': dict_[name][0],
+                             'Mobile Number': dict_[name][1], 'email': dict_[name][2]})
         self.__close_csv()
 
 
@@ -88,50 +93,60 @@ class AddressBookWindow(object):
     """
     def __init__(self, root):
         self.root = root
+        self.root.title('My Address Book')
         self.root.attributes("-zoomed", True) # Maximises the window.
 
-    # set the image.
     def image(self):
+        # set the image.
         load = Image.open('addressbook.png')
         render = ImageTk.PhotoImage(load)
         img = Label(self.root, image=render)
         img.image = render
         img.place(x=0, y=50)
 
-    # Add buttons for adding, modifying and deleting contacts.
     def options_frame(self):
+        # Add buttons for adding, modifying and deleting contacts.
         frame = Frame(self.root)
-        new_contact_btn = Button(frame, text="Create New Contact", fg="blue", bg="yellow",width=20,height=2,font=('Comic Sans MS',30), command=self.new_contact_window)
+        new_contact_btn = Button(frame, text="Create New Contact", fg="blue",
+                                 bg="yellow",width=20,height=2,font=('Comic Sans MS',30),
+                                 command=self.new_contact_window)
         new_contact_btn.pack(pady=10)
-        modify_contact_btn = Button(frame, text="Modify Existing Contact", fg="purple", bg="orange",width=20,font=('Comic Sans MS',30), command=self.modify_contact_window)
+        modify_contact_btn = Button(frame, text="Modify Existing Contact",
+                                    fg="purple", bg="orange",width=20,font=('Comic Sans MS',30),
+                                    command=self.modify_contact_window)
         modify_contact_btn.pack(pady=10)
-        delete_contact_btn = Button(frame, text="Delete Contact", fg="white", bg="red",width=20,font=('Comic Sans MS',30), command= self.delete_contact_window)
+        delete_contact_btn = Button(frame, text="Delete Contact", fg="white",
+                                    bg="red",width=20,font=('Comic Sans MS',30),
+                                    command= self.delete_contact_window)
         delete_contact_btn.pack(pady=10)
         frame.place(x=50, y=600)
 
-    # Add heading.
     def heading_label(self):
+        # Add heading.
         label = Label(self.root, text='My Address Book',font=('Comic Sans MS', 30))
         label.place(x=1000, y=50)
 
-    # Display the address book in GUI.
     def address_book_display(self):
+        # Display the address book in GUI.
         frame = Frame(self.root)
         frame.place(x=600, y=130)
         row = Text(frame, height=40, width=116, padx=20, pady=10, font=(None, 0))
         row.pack()
-        row.insert(END, 'Name' + '\t'*3 + 'Address' + '\t'*6 + 'Mobile Number' + '\t'*2 + 'email\n\n')
+        row.insert(END, 'Name' + '\t'*3 + 'Address' + '\t'*6 + 'Mobile Number'
+                   + '\t'*2 + 'email\n\n')
 
         contacts = ManageCSV('AddressBook.csv') # Load contacts from CSV
         contact_dict = contacts.read_values()
         contact_dict = dict(OrderedDict(sorted(contact_dict.items())))
 
         for name in contact_dict:
-            row.insert(END, name + '\t'*3 + contact_dict[name][0] + '\t'*6 + contact_dict[name][1] + '\t'*2 + contact_dict[name][2] + '\n')
+            row.insert(END, name + '\t'*3 + contact_dict[name][0] + '\t'*6 +
+                       contact_dict[name][1] + '\t'*2 + contact_dict[name][2] + '\n')
 
         row.config(state=DISABLED) # No modification of the contacts in GUI.
 
     def new_contact_window(self):
+        # GUI for adding a new contact.
         window = Toplevel(self.root)
         window.geometry("1000x600+400+200")
 
@@ -151,24 +166,28 @@ class AddressBookWindow(object):
         def get_values():
             values = [entry.get() for entry in entries]
 
-            if values[0] == '':
-                warn_label = Label(frame, text="You cannot leave Name blank!", font=(None, 30), fg="red")
+            if values[0] == '': # Display a warning if name is not entered
+                warn_label = Label(frame, text="You cannot leave Name blank!",
+                                   font=(None, 30), fg="red")
                 warn_label.grid(columnspan=2, pady=10, padx=15)
             else:
-                window.destroy()
+                window.destroy() # Going to previous window
                 new_contact = Contact()
                 new_contact.set_name(values[0])
                 new_contact.set_address(values[1])
                 new_contact.set_mobile_number(values[2])
                 new_contact.set_email(values[3])
                 csv = ManageCSV('AddressBook.csv')
-                csv.write_values(contact=new_contact)
+                csv.write_values(contact=new_contact) # Adding new contact to csv file.
                 self.address_book_display()
+                # displaying the address book again with names sorted in ascending order.
 
-        button = Button(frame, text="SUBMIT", font=('Comic Sans MS', 30), width=10, command=get_values)
+        button = Button(frame, text="SUBMIT", font=('Comic Sans MS', 30),
+                        width=10, command=get_values)
         button.grid(column=1, sticky=SW, pady=30)
 
     def modify_contact_window(self):
+        # GUI for modifying existing contact.
         window = Toplevel(self.root)
         window.geometry("1000x600+400+200")
 
@@ -191,10 +210,10 @@ class AddressBookWindow(object):
             dict_ = csv.read_values()
             flag = False
 
-            if values[0] == '':
+            if values[0] == '': # String must not be empty.
                 text = "Fill in the name you want to modify."
                 flag = True
-            elif values[0] not in dict_:
+            elif values[0] not in dict_: # String must be present in the csv.
                 text = "Contact of this name is not present."
                 flag = True
 
@@ -202,23 +221,25 @@ class AddressBookWindow(object):
                 warn_label = Label(frame, text=text, font=(None, 20), fg="red")
                 warn_label.grid(row=6,column=0,columnspan=2, pady=10)
             else:
-                window.destroy()
-                print(values)
+                window.destroy() # Return to the main window
                 for x in range(1, 4):
                     if values[x] is not '':
-                        dict_[values[0]][x-1] = values[x]
+                        dict_[values[0]][x-1] = values[x] # Modify the values in dictionary.
                 csv = ManageCSV('AddressBook.csv')
-                csv.write_values(dict_=dict_)
-                self.address_book_display()
+                csv.write_values(dict_=dict_) # Modify value in csv file.
+                self.address_book_display() # Redesplay the contacts in sorted order.
 
-        button = Button(frame, text="SUBMIT", font=('Comic Sans MS', 30), width=10, command=get_values)
+        button = Button(frame, text="SUBMIT", font=('Comic Sans MS', 30),
+                        width=10, command=get_values)
         button.grid(column=1, sticky=SW, pady=30)
 
-        note_label = Label(frame, text="NOTE : Only fill the fields you want to modify along with the name.",
+        note_label = Label(frame, text="NOTE : Only fill the fields you want to "
+                                       "modify along with the name.",
                            font=("Comic Sans MS", 20))
         note_label.grid(columnspan=2, pady=10, padx=15)
 
     def delete_contact_window(self):
+        # GUI for deleting contact.
         window = Toplevel(self.root)
         window.geometry("1000x600+400+200")
 
@@ -237,16 +258,19 @@ class AddressBookWindow(object):
             dict_ = csv.read_values()
 
             try:
-                dict_.pop(name)
+                dict_.pop(name) # Deleting the contact details of the specified name.
             except KeyError:
-                label = Label(frame, text="Contact not present in Address Book", font=(None, 30), fg="red")
+                label = Label(frame, text="Contact not present in Address Book",
+                              font=(None, 30), fg="red")
                 label.grid(columnspan=2, pady=10, padx=15)
+                # Display a warning if contact name not present in csv.
             else:
-                window.destroy()
-                csv.write_values(dict_=dict_)
-                self.address_book_display()
+                window.destroy() # Return to previous window.
+                csv.write_values(dict_=dict_) # Updating csv.
+                self.address_book_display() # Redesplaying contacts.
 
-        button = Button(frame, text="DELETE", font=('Comic Sans MS', 30), width=10, command=get_value)
+        button = Button(frame, text="DELETE", font=('Comic Sans MS', 30),
+                        width=10, command=get_value)
         button.grid(column=1, sticky=SW, pady=30)
 
 
