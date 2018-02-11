@@ -1,6 +1,8 @@
 from tkinter import *
 from PIL import Image, ImageTk
 import csv
+from collections import OrderedDict
+
 
 class Contact(object):
     """
@@ -45,47 +47,61 @@ class Contact(object):
 
 
 class ManageCSV(object):
+    """
+    Interacts with the .csv file containing all contacts.
+    That is, loads Contacts into RAM from Secondary Storage.
+    """
     def __init__(self,csv_name):
         self.CSV = open(csv_name)
 
     def close_csv(self):
         self.CSV.close()
 
+    # Load values to a python dictionary from the .csv file.
     def read_values(self):
         reader = csv.DictReader(self.CSV)
         dict_ = {}
         for row in reader:
             dict_[row['Name']] = [row['Address'], row['Mobile Number'], row['email']]
         self.close_csv()
-        return dict_
+        return OrderedDict(dict_)
 
 
 class AddressBookWindow(object):
-    def __init__(self):
-        self.root = Tk()
-        self.root.attributes("-zoomed", True)
+    """
+    Manages the Graphic User Interface.
+    GUI is made using tkinter.
+    """
+    def __init__(self, root):
+        self.root = root
+        self.root.attributes("-zoomed", True) # Maximises the window.
 
-    def bg_image(self):
+    # set the image.
+    def image(self):
         load = Image.open('addressbook.png')
         render = ImageTk.PhotoImage(load)
         img = Label(self.root, image=render)
         img.image = render
         img.place(x=0, y=50)
 
+    # Add buttons for adding, modifying and deleting contacts.
     def options_frame(self):
-        frame = Frame(self.root)
-        btn1 = Button(frame, text="Create New Contact", fg="blue", bg="yellow",width=20,height=2,font=('Comic Sans MS',30))
-        btn2 = Button(frame, text="Modify Existing Contact", fg="purple", bg="red",width=20,font=('Comic Sans MS',30))
-        btn3 = Button(frame, text="Delete Contact", fg="orange", bg="green",width=20,font=('Comic Sans MS',30))
-        btn1.pack(pady=10)
-        btn2.pack(pady=10)
-        btn3.pack(pady=10)
-        frame.place(x=50, y=600)
+        self.frame = Frame(self.root)
+        self.new_contact_btn = Button(self.frame, text="Create New Contact", fg="blue", bg="yellow",width=20,height=2,font=('Comic Sans MS',30), command=self.new_contact_window())
+        self.new_contact_btn.pack(pady=10)
+        modify_contact_btn = Button(self.frame, text="Modify Existing Contact", fg="purple", bg="orange",width=20,font=('Comic Sans MS',30))
+        delete_contact_btn = Button(self.frame, text="Delete Contact", fg="white", bg="red",width=20,font=('Comic Sans MS',30))
 
+        modify_contact_btn.pack(pady=10)
+        delete_contact_btn.pack(pady=10)
+        self.frame.place(x=50, y=600)
+
+    # Add heading.
     def heading_label(self):
         label = Label(self.root, text='My Address Book',font=('Comic Sans MS', 30))
         label.place(x=1000, y=50)
 
+    # Display the address book in GUI.
     def address_book_display(self):
         frame = Frame(self.root)
         frame.place(x=600, y=130)
@@ -93,18 +109,22 @@ class AddressBookWindow(object):
         row.pack()
         row.insert(END, 'Name' + '\t'*3 + 'Address' + '\t'*6 + 'Mobile Number' + '\t'*2 + 'email\n\n')
 
-        contacts = ManageCSV('AddressBook.csv')
+        contacts = ManageCSV('AddressBook.csv') # Load contacts from CSV
         contact_dict = contacts.read_values()
 
         for name in contact_dict:
             row.insert(END, name + '\t'*3 + contact_dict[name][0] + '\t'*6 + contact_dict[name][1] + '\t'*2 + contact_dict[name][2] + '\n')
 
-        row.config(state=DISABLED)
+        row.config(state=DISABLED) # No modification of the contacts in GUI.
+
+    def new_contact_window(self):
+        window = Toplevel(self.root)
+        window.geometry("1000x600+400+0")
 
 
 if __name__ == '__main__':
     address_book = AddressBookWindow()
-    address_book.bg_image()
+    address_book.image()
     address_book.options_frame()
     address_book.heading_label()
     address_book.address_book_display()
